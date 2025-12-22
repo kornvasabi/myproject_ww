@@ -108,13 +108,7 @@ $result = $conn->query($sql);
                 </div>
             </div>
             
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Your System 2024</span>
-                    </div>
-                </div>
-            </footer>
+            <?php include('includes/footer.php'); ?>
         </div>
     </div>
 
@@ -186,23 +180,7 @@ $result = $conn->query($sql);
         </div>
     </div>
     
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">คุณต้องการออกจากระบบใช่ไหม?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">เลือก "Logout" ด้านล่างหากคุณต้องการจบการทำงานในครั้งนี้</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="logout.php">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include('includes/logout_modal.php'); ?>
 
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
