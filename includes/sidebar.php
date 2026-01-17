@@ -128,3 +128,28 @@ $current_group_id = isset($_SESSION['group_id']) ? $_SESSION['group_id'] : 0;
     </div>
 
 </ul>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+
+<style>
+    /* บังคับเปลี่ยน Font ทุกส่วนของเว็บ */
+    body, 
+    h1, h2, h3, h4, h5, h6, 
+    p, span, div, a, li, 
+    button, input, select, textarea, label,
+    .table, .btn, .sidebar {
+        font-family: 'Sarabun', sans-serif !important;
+    }
+
+    /* ปรับขนาดตัวอักษรพื้นฐานให้ใหญ่ขึ้นนิดนึง (Sarabun หัวเล็ก) */
+    body {
+        font-size: 0.95rem; 
+        font-weight: 400;
+    }
+    
+    /* ปรับหัวข้อให้หนาชัดเจน */
+    h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+        font-weight: 600 !important;
+    }
+</style>
