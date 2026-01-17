@@ -187,8 +187,13 @@ while($row_b = $res_b->fetch_assoc()) {
         $(document).ready(function() {
             $('#dataTable').DataTable();
 
-            // Script ลบข้อมูล (เหมือนเดิม)
-            $('.btn-delete').click(function() {
+            // Script ลบข้อมูล (แก้ไขให้รองรับ DataTable Pagination)
+            $('#dataTable tbody').on('click', '.btn-delete', function() {
+                // ตรวจสอบก่อนว่าปุ่มไม่ได้ถูก disable อยู่
+                if ($(this).is(':disabled')) {
+                    return; 
+                }
+                
                 var id = $(this).data('id');
                 Swal.fire({
                     title: 'ยืนยันการลบ?',
@@ -202,7 +207,7 @@ while($row_b = $res_b->fetch_assoc()) {
                     if (result.isConfirmed) {
                         window.location.href = 'server_save.php?action=delete&id=' + id;
                     }
-                })
+                });
             });
         });
 

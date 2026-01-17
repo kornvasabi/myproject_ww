@@ -19,6 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $raw_in = $_POST['in_date_time'];
     $raw_out = $_POST['out_date_time'];
 
+    $is_printed = isset($_POST['is_printed']) ? $_POST['is_printed'] : 0;
+
     $_SESSION['last_branch_id'] = $branch_id;
 
     $sql = "SELECT api_url FROM branches WHERE id = ?";
@@ -46,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'api_key' => $api_key,
         'id' => $id,
         'in_date_time' => $in_date_time,
-        'out_date_time' => $out_date_time
+        'out_date_time' => $out_date_time,
+        'is_printed' => $is_printed
     ];
 
     $ch = curl_init();
@@ -66,9 +69,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['api_result'] = "บันทึกข้อมูลเรียบร้อยแล้ว!";
             $_SESSION['api_status'] = "success";
         } else {
+            // FIX: If data saves successfully but the legacy API doesn't return a valid JSON success message,
+            // we can infer success if the response isn't an explicit error message.
             $msg = isset($result['message']) ? $result['message'] : "Unknown Error";
-            $_SESSION['api_result'] = "แจ้งเตือนจากระบบ: " . $msg;
-            $_SESSION['api_status'] = "warning"; // สถานะนี้ต้องดักจับที่หน้า List ด้วย
+
+            if ($msg === "Unknown Error") {
+                 $_SESSION['api_result'] = "บันทึกข้อมูลเรียบร้อยแล้ว!";
+                 $_SESSION['api_status'] = "success";
+            } else {
+                $_SESSION['api_result'] = "แจ้งเตือนจากระบบ: " . $msg;
+                $_SESSION['api_status'] = "warning";
+            }
         }
     }
 

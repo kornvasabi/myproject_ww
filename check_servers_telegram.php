@@ -8,8 +8,8 @@ require_once 'db.php';
 
 // ========== การตั้งค่า Telegram Bot ==========
 define('TELEGRAM_BOT_TOKEN', '8114135707:AAGrAKtF6vgekhlCgEDEtzcrv8uwFI2hCtE'); // ใส่ Token ของ Bot
-define('TELEGRAM_CHAT_ID', '7754054025');     // ใส่ Chat ID
-// define('TELEGRAM_CHAT_ID', '-4845052221');     // ใส่ Chat ID Group
+// define('TELEGRAM_CHAT_ID', '7754054025');     // ใส่ Chat ID
+define('TELEGRAM_CHAT_ID', '-4845052221');     // ใส่ Chat ID Group
 
 // ========== การตั้งค่าการทำงาน ==========
 define('TIMEOUT', 10); // Timeout สำหรับการเชื่อมต่อ (วินาที)

@@ -194,39 +194,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn_search'])) {
                     <div class="card shadow mb-4">
                         <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-success">ผลการค้นหา (<?php echo count($search_results); ?> รายการ)</h6></div>
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Ticket 2</th>
-                                            <th>In Date Time</th>
-                                            <th>Out Date Time</th>
-                                            <th>จัดการ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($search_results as $row) { ?>
-                                        <tr>
-                                            <td><?php echo $row['id']; ?></td>
-                                            <td><?php echo $row['ticket2']; ?></td>
-                                            <td><?php echo $row['in_date_time']; ?></td>
-                                            <td><?php echo $row['out_date_time']; ?></td>
-                                            <td>
-                                                <button type="button" class="btn btn-warning btn-sm btn-edit"
-                                                    data-id="<?php echo $row['id']; ?>"
-                                                    data-in="<?php echo $row['in_date_time']; ?>"
-                                                    data-out="<?php echo $row['out_date_time']; ?>"
-                                                    data-ticket="<?php echo $row['ticket2']; ?>"
-                                                >
-                                                    <i class="fas fa-edit"></i> แก้ไข
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>                <th>Ticket 2</th>          <th>In Date Time</th>      <th>Out Date Time</th>     <th class="text-center">สถานะพิมพ์</th> <th>จัดการ</th>             </tr>
+                                </thead>
+                                
+                                <tbody>
+                                    <?php foreach ($search_results as $row) { 
+                                        // ดึงค่าสถานะพิมพ์ (ถ้าไม่มีให้เป็น 0)
+                                        $is_printed = isset($row['is_printed']) ? $row['is_printed'] : 0;
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $row['id']; ?></td>
+
+                                        <td><?php echo $row['ticket2']; ?></td>
+
+                                        <td><?php echo $row['in_date_time']; ?></td>
+
+                                        <td><?php echo $row['out_date_time']; ?></td>
+                                        
+                                        <td class="text-center">
+                                            <?php if($is_printed == 1): ?>
+                                                <span class="badge badge-success px-2 py-1">
+                                                    <i class="fas fa-check"></i> พิมพ์แล้ว
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge badge-secondary px-2 py-1">
+                                                    <i class="fas fa-times"></i> ยังไม่พิมพ์
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm btn-edit"
+                                                data-id="<?php echo $row['id']; ?>"
+                                                data-in="<?php echo $row['in_date_time']; ?>"
+                                                data-out="<?php echo $row['out_date_time']; ?>"
+                                                data-ticket="<?php echo $row['ticket2']; ?>"
+                                                data-printed="<?php echo $is_printed; ?>" 
+                                            >
+                                                <i class="fas fa-edit"></i> แก้ไข
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
                         </div>
                     </div>
                     <?php } ?>
@@ -265,6 +281,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn_search'])) {
                         <div class="form-group">
                             <label class="text-danger font-weight-bold"><i class="fas fa-sign-out-alt"></i> เวลาออก (Out)</label>
                             <input type="text" name="out_date_time" id="modal_out" class="form-control modal-datetime">
+                        </div>
+                        <div class="form-group bg-gray-200 p-3 rounded">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="modal_printed" name="is_printed" value="1">
+                                <label class="custom-control-label font-weight-bold text-dark" for="modal_printed">
+                                    <i class="fas fa-print"></i> พิมพ์บัตรชั่งแล้ว (Printed)
+                                </label>
+                            </div>
+                            <small class="text-muted ml-4">หากติ๊กออก สถานะจะกลับเป็น "ยังไม่พิมพ์"</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -330,6 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn_search'])) {
                 var ticket = $(this).data('ticket');
                 var inTime = $(this).data('in');
                 var outTime = $(this).data('out');
+                var printed = $(this).data('printed'); // รับค่า 0 หรือ 1
                 var branchId = $('#search_branch_id').val();
                 
                 $('#modal_id').val(id);
@@ -338,6 +364,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn_search'])) {
                 
                 fpIn.setDate(inTime); 
                 if (outTime) fpOut.setDate(outTime); else fpOut.clear();
+
+                // ตั้งค่า Checkbox
+                if (printed == 1) {
+                    $('#modal_printed').prop('checked', true);
+                } else {
+                    $('#modal_printed').prop('checked', false);
+                }
                 
                 $('#editModal').modal('show');
             });
