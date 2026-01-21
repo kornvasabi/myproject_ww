@@ -4,17 +4,19 @@ $root_path = $_SERVER['DOCUMENT_ROOT'] . '/myproject_ww';
 require_once $root_path . '/db.php';
 require_once $root_path . '/includes/auth.php';
 
+checkAccess($conn, basename($_SERVER['PHP_SELF'])); // เปิดใช้ถ้ากำหนดสิทธิ์แล้ว
+
 // ==========================================
 // 1. ตั้งค่ารายชื่อระบบ (แก้ไขตรงนี้ได้เลย)
 // ==========================================
 $system_options = [
     'Hardware/Device' => 'primary',   // สีน้ำเงิน
-    'Network/Internet' => 'info',     // สีฟ้า
+    'ระบบบัญชี AX/ERP' => 'info',     // สีฟ้า
     'Server/Database' => 'dark',      // สีดำ
     'ระบบ QR-Code' => 'success',      // สีเขียว
     'ระบบ Truck83' => 'warning',      // สีเหลือง
-    'ระบบบัญชี/ERP' => 'danger',      // สีแดง
-    'Web Application' => 'primary',   // สีน้ำเงิน
+    'ระบบค่าแรง4' => 'danger',      // สีแดง
+    'ระบบตาชั่งเล็ก' => 'primary',   // สีน้ำเงิน
     'งานเอกสาร/ทั่วไป' => 'secondary' // สีเทา
 ];
 
@@ -118,12 +120,29 @@ if ($filter_user == 'all' && $is_admin) {
     $sql .= " AND r.user_id = " . intval($filter_user);
 }
 
-$sql .= " ORDER BY r.report_date DESC, r.id DESC";
+// $sql .= " ORDER BY r.report_date DESC, r.id DESC";
+$sql .= " ORDER BY r.report_date,r.system_name ASC, r.id ASC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $filter_month);
 $stmt->execute();
 $result = $stmt->get_result();
+
+$report_date = date('Y-m-d');
+// --- [ดึงข้อมูลเสริม] ส่วนนี้จะ query แยกเพื่อไม่ให้กระทบ $result หลัก ---
+$sql_extra = "SELECT * FROM daily_reports WHERE report_date = ? AND user_id = ? LIMIT 1";
+$stmt_extra = $conn->prepare($sql_extra);
+$stmt_extra->bind_param("si", $report_date, $current_user_id); // ใช้ $report_date และ user ปัจจุบัน
+$stmt_extra->execute();
+$result_extra = $stmt_extra->get_result();
+
+// ดึงแค่แถวเดียว ไม่ต้อง loop
+$row_extra = $result_extra->fetch_assoc();
+if ($row_extra) {
+    $time_report = "";
+} else {
+    $time_report = "08:00-17:00";
+}
 ?>
 
 <!DOCTYPE html>
@@ -178,7 +197,7 @@ $result = $stmt->get_result();
                     </div>
 
                     <div class="card shadow mb-4">
-                        <div class="card-header py-3 bg-gradient-primary">
+                        <div class="card-header py-3 bg-gradient-secondary">
                             <h6 class="m-0 font-weight-bold text-white">
                                 <i class="fas fa-user-circle"></i> รายงานของ : <span style="text-decoration: underline;"><?php echo $display_header_name; ?></span>
                             </h6>
@@ -190,14 +209,14 @@ $result = $stmt->get_result();
                                         <tr>
                                             <th width="10%">ว/ด/ป</th>
                                             <th width="8%">เวลา</th>
-                                            <th width="5%">#</th>
+                                            <!-- <th width="5%">#</th> -->
                                             <th width="5%">##</th>
                                             
                                             <?php if($filter_user == 'all') { ?>
                                                 <th width="12%">ผู้ปฏิบัติงาน</th>
                                             <?php } ?>
 
-                                            <th width="12%">ระบบที่ดูแล</th> <th>งานที่ทำ</th>
+                                            <th width="12%">ระบบ</th> <th>งานที่ทำ</th>
                                             <th width="10%">ผลลัพธ์</th>
                                             <th width="12%">หมายเหตุ</th>
                                             <th width="8%">จัดการ</th>
@@ -231,7 +250,7 @@ $result = $stmt->get_result();
                                         <tr>
                                             <td class="text-center"><?php echo $date_th; ?></td>
                                             <td class="text-center"><?php echo $row['time_range']; ?></td>
-                                            <td class="text-center"><?php echo $i++; ?></td>
+                                            <!-- <td class="text-center"><?php // echo $i++; ?></td> -->
 
                                             <?php if($filter_user == 'all') { ?>
                                                 <td class="small font-weight-bold text-primary"><?php echo $row['fullname']; ?></td>
@@ -301,7 +320,7 @@ $result = $stmt->get_result();
                             </div>
                             <div class="form-group col-md-4">
                                 <label>ช่วงเวลา</label>
-                                <input type="text" name="time_range" id="modal_time" class="form-control" value="08:00-17:00">
+                                <input type="text" name="time_range" id="modal_time" class="form-control" value="<?php echo $time_report;?>">
                             </div>
                             <div class="form-group col-md-4">
                                 <label>ระบบที่ดูแล <span class="text-danger">*</span></label>
