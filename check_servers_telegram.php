@@ -38,7 +38,7 @@ function sendTelegramMessage($message) {
 
     $result = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    // curl_close($ch);
 
     return $httpCode == 200;
 }
@@ -73,7 +73,7 @@ function checkServerStatus($address, $timeout = 10) {
         @curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_errno($ch);
-        curl_close($ch);
+        // curl_close($ch);
 
         // ถ้า HTTP code มีค่า ถือว่า Online
         if ($httpCode > 0) {
@@ -83,7 +83,7 @@ function checkServerStatus($address, $timeout = 10) {
         }
     } catch (Exception $e) {
         if (is_resource($ch)) {
-            curl_close($ch);
+            // curl_close($ch);
         }
         return 'Offline';
     }
