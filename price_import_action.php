@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['price_file'])) {
     $all_wood_codes = []; // ตัวแปรเก็บรหัสสินค้าทั้งหมดในไฟล์
     $row_count = 0;
 
-    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000, ",", '"', "\\"))/*fgetcsv($handle, 1000, ",")*/ !== FALSE) {
         $row_count++;
         if ($row_count == 1) continue; // ข้าม Header
 
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['price_file'])) {
         $sql_insert = "INSERT INTO product_prices (wood_code, unit_price, start_date, end_date, created_by) VALUES (?, ?, ?, '9999-12-31', ?)";
         $stmt_insert = $conn->prepare($sql_insert);
 
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        while (($data = fgetcsv($handle, 1000, ",", '"', "\\")/*fgetcsv($handle, 1000, ",")*/) !== FALSE) {
             $row++;
             if ($row == 1) continue; // ข้าม Header อีกรอบ
 
