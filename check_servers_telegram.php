@@ -240,9 +240,4 @@ try {
     writeLog("ERROR: " . $e->getMessage());
     sendTelegramMessage($errorMessage);
 }
-
-// ปิดการเชื่อมต่อ Database
-if (isset($conn)) {
-    $conn->close();
-}
 ?>
