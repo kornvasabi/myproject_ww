@@ -42,7 +42,8 @@ $result = $conn->query($sql);
                                     <small class="text-muted">โปรดบันทึก Excel เป็น .csv (UTF-8) ก่อนนำเข้า</small>
                                 </div>
                                 <button type="submit" class="btn btn-success"><i class="fas fa-upload"></i> อัปโหลดและประมวลผล</button>
-                                <a href="price_template.csv" class="btn btn-secondary" download><i class="fas fa-download"></i> ดาวน์โหลด Template</a>
+                                <!-- ใส่ data-toggle เพื่อไม่ให้ global_loader ทำงาน (ไม่ต้องโชว์โหลดดิ้งตอนโหลดไฟล์ template) -->
+                                <a href="price_template.csv" class="btn btn-secondary" download data-toggle="download"><i class="fas fa-download"></i> ดาวน์โหลด Template</a>
                             </form>
                         </div>
                     </div>

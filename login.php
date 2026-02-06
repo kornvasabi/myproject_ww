@@ -26,6 +26,7 @@
             font-size: 0.8rem;
         }
     </style>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 
 <body class="bg-gradient-primary">

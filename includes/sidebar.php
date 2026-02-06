@@ -128,6 +128,10 @@ $current_group_id = isset($_SESSION['group_id']) ? $_SESSION['group_id'] : 0;
     </div>
 
 </ul>
+<div id="global_loader">
+    <div class="smooth-spinner"></div>
+    <div class="loading-text">กำลังประมวลผล...</div>
+</div>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
@@ -152,4 +156,99 @@ $current_group_id = isset($_SESSION['group_id']) ? $_SESSION['group_id'] : 0;
     h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
         font-weight: 600 !important;
     }
+
+    /* ฉากหลัง Loading */
+    #global_loader {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 99999;
+        
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(10px);
+
+        /* [แก้จุดที่ 1] ตั้งค่าเริ่มต้นให้ "โชว์" เสมอ */
+        opacity: 1;
+        visibility: visible;
+        
+        /* Transition */
+        transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+        
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    /* [แก้จุดที่ 2] สร้าง Class สำหรับ "ซ่อน" (Fade Out) */
+    #global_loader.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    /* Spinner Design (คงเดิม) */
+    .smooth-spinner {
+        width: 60px; height: 60px; border-radius: 50%; position: relative;
+        border: 4px solid rgba(78, 115, 223, 0.1); border-left-color: #4e73df;
+        animation: spin 0.8s linear infinite; box-shadow: 0 0 15px rgba(78, 115, 223, 0.2);
+    }
+    .loading-text {
+        margin-top: 15px; color: #4e73df; font-weight: 600; letter-spacing: 1px;
+        animation: pulse 1.5s infinite ease-in-out;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 </style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const loader = document.getElementById('global_loader');
+
+        // ฟังก์ชันสั่งซ่อน (เติม Class fade-out)
+        function hideLoader() {
+            loader.classList.add('fade-out');
+        }
+
+        // ฟังก์ชันสั่งโชว์ (ลบ Class fade-out ออก -> กลับไปโชว์ตาม Default CSS)
+        function showLoader() {
+            loader.classList.remove('fade-out');
+        }
+
+        // A. เมื่อโหลดหน้าเสร็จ -> สั่งซ่อน Loader
+        setTimeout(hideLoader, 300); // หน่วงนิดนึงให้เห็น Effect
+
+        // B. ดักจับการคลิกเปลี่ยนหน้า -> สั่งโชว์ Loader กลับมา
+        const links = document.querySelectorAll('a.nav-link, .collapse-item, a.btn, a.btn-circle');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                const target = this.getAttribute('target');
+                // เช็คว่าเป็นลิงก์เปิด Modal หรือ Dropdown หรือไม่ (ถ้าใช่ ไม่ต้องโชว์)
+                const isToggle = this.hasAttribute('data-toggle') || this.hasAttribute('data-target');
+                
+                if (href && href !== '#' && !href.startsWith('javascript') && target !== '_blank' && !isToggle && !href.includes('#')) {
+                    showLoader(); // ดึง Loader กลับมาบังจอ
+                }
+            });
+        });
+
+        // C. ดักจับการ Submit Form
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function() {
+                if (form.checkValidity()) {
+                    showLoader();
+                }
+            });
+        });
+    });
+    
+    // D. กรณีแก้ปัญหา Back Button ของ Browser (Safari/Chrome Mobile)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            document.getElementById('global_loader').classList.add('fade-out');
+        }
+    });
+</script>

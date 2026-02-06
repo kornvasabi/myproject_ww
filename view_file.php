@@ -16,13 +16,14 @@ if (isset($_GET['type']) && isset($_GET['file'])) {
     $filename = basename($_GET['file']); 
     $sub_folder = ($type == 'image') ? 'images/' : 'files/';
     $full_path = $base_path . $sub_folder . $filename;
-
+	// echo $full_path; exit;
+	
     if (file_exists($full_path)) {
         
         // --- [แก้ไขจุดที่ Error] ---
         // แทนที่จะใช้ mime_content_type() เราจะเช็คนามสกุลเอาเองครับ
         $file_extension = strtolower(pathinfo($full_path, PATHINFO_EXTENSION));
-        
+        // echo $file_extension; exit;
         // กำหนด Mime Type ตามนามสกุล
         $mime_types = [
             'png' => 'image/png',
@@ -41,7 +42,7 @@ if (isset($_GET['type']) && isset($_GET['file'])) {
 
         // ถ้าหานามสกุลไม่เจอ ให้ใช้ default
         $mime = isset($mime_types[$file_extension]) ? $mime_types[$file_extension] : 'application/octet-stream';
-        
+        // echo $mime; exit;
         header("Content-Type: $mime");
         // ---------------------------
 
