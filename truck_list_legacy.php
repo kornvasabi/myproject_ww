@@ -379,10 +379,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btn_search'])) {
             $('form').on('submit', function(e) {
                 if (this.checkValidity()) {
                     // ถ้าเป็นฟอร์มค้นหา
-                    if($(this).find('[name="btn_search"]').length > 0) {
+                    /*if($(this).find('[name="btn_search"]').length > 0) {
                         $('#loadingOverlay .loading-text').text('กำลังค้นหาข้อมูลจาก Server เก่า...');
                         $('#loadingOverlay').css('display', 'flex');
-                    }
+                    }*/
                     // ถ้าเป็นฟอร์มใน Modal (บันทึกการแก้ไข)
                     else if($(this).closest('#editModal').length > 0) {
                         $('#loadingOverlay .loading-text').text('กำลังบันทึกข้อมูล...');

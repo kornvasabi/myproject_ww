@@ -3,6 +3,9 @@ session_start();
 require_once 'db.php';
 require_once 'includes/auth.php'; // <--- เพิ่มบรรทัดนี้ครับ!
 
+// ปิดการใช้งาน global loader สำหรับหน้านี้
+$disable_global_loader = true;
+
 // ตรวจสิทธิ์หน้านี้
 checkAccess($conn, basename($_SERVER['PHP_SELF']));
 
@@ -92,7 +95,8 @@ $result = $conn->query($sql);
                                                 </button>
                                                 
                                                 <a href="user_action.php?action=delete&id=<?php echo $row['id']; ?>" 
-                                                   class="btn btn-danger btn-sm" 
+                                                   class="btn btn-danger btn-sm"
+                                                   data-toggle="confirm-delete"
                                                    onclick="return confirm('คุณต้องการลบผู้ใช้งาน <?php echo $row['username']; ?> ใช่หรือไม่?');">
                                                     <i class="fas fa-trash"></i>
                                                 </a>

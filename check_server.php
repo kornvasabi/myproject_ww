@@ -7,6 +7,9 @@ require_once $root_path . '/includes/auth.php';
 
 // ตรวจสิทธิ์การเข้าถึงหน้านี้
 checkAccess($conn, basename($_SERVER['PHP_SELF'])); // เปิดบรรทัดนี้ถ้ามีฟังก์ชัน checkAccess
+
+// ปิดการใช้งาน global loader สำหรับหน้านี้
+$disable_global_loader = true;
 ?>
 
 <!DOCTYPE html>

@@ -4,6 +4,9 @@ $root_path = $_SERVER['DOCUMENT_ROOT'] . '/myproject_ww';
 require_once $root_path . '/db.php';
 require_once $root_path . '/includes/auth.php';
 
+// ปิดการใช้งาน global loader สำหรับหน้านี้
+$disable_global_loader = true;
+
 // ดึงราคาปัจจุบันมาแสดง (ที่ end_date เป็น 9999-12-31)
 $sql = "SELECT * FROM product_prices WHERE end_date = '9999-12-31' ORDER BY wood_code ASC";
 $result = $conn->query($sql);
