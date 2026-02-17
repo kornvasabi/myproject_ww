@@ -85,7 +85,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['price_file'])) {
         header("Location: price_import.php"); // ดีดกลับไปหน้าเดิม
         exit(); // จบการทำงาน
     }
+    
+    // =========================================================
+    // STEP 1.5: ตรวจสอบข้อมูลซ้ำซ้อนกับ Database (Overlap Check)
+    // =========================================================
+    
+    $db_conflict_errors = [];
 
+    // เตรียม SQL: เช็คว่ามีข้อมูลเดิม ที่วันที่ start_date "มากกว่าหรือเท่ากับ" วันที่ใหม่หรือไม่
+    // ถ้ามี แสดงว่าเรากำลังจะย้อนเวลา หรือใส่ข้อมูลซ้ำ ซึ่งไม่ถูกต้อง
+    $sql_check_db = "SELECT start_date FROM product_prices WHERE wood_code = ? AND start_date >= ? LIMIT 1";
+    $stmt_check_db = $conn->prepare($sql_check_db);
+
+    foreach ($all_csv_data as $item) {
+        $code = $item['code'];
+        $raw_date = $item['raw_date'];
+
+        // แปลงวันที่ให้เป็น Y-m-d เพื่อเทียบกับ Database
+        $date_parts = explode('/', $raw_date);
+        if (count($date_parts) == 3) {
+            $check_date = $date_parts[2] . '-' . str_pad($date_parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($date_parts[0], 2, '0', STR_PAD_LEFT);
+        } else {
+            $check_date = date('Y-m-d', strtotime($raw_date));
+        }
+
+        // ยิง Query เช็ค
+        $stmt_check_db->bind_param("ss", $code, $check_date);
+        $stmt_check_db->execute();
+        $stmt_check_db->store_result();
+
+        // ถ้าเจอข้อมูล (Rows > 0) แสดงว่าซ้ำซ้อน
+        if ($stmt_check_db->num_rows > 0) {
+            $db_conflict_errors[] = "$code (วันที่ $check_date)";
+        }
+    }
+
+    // ถ้ามีข้อขัดแย้งกับ DB ให้หยุดและแจ้งเตือน
+    if (!empty($db_conflict_errors)) {
+        fclose($handle);
+        
+        // ตัดให้เหลือแค่ 5 รายการแรกพองาม ถ้าเยอะเกินเดี๋ยวยาว
+        $show_limit = array_slice($db_conflict_errors, 0, 5);
+        $error_msg = implode(', ', $show_limit);
+        if (count($db_conflict_errors) > 5) $error_msg .= " และอื่นๆ...";
+
+        $_SESSION['msg_status'] = 'error';
+        $_SESSION['msg_text'] = "นำเข้าล้มเหลว! พบวันที่ซ้ำซ้อนหรือย้อนหลังข้อมูลเดิมในระบบ: [ $error_msg ] กรุณาใช้วันที่ที่ใหม่กว่าปัจจุบัน";
+        header("Location: price_import.php");
+        exit();
+    }
     // =========================================================
     // STEP 2: บันทึกข้อมูลลงฐานข้อมูล (Processing Phase)
     // =========================================================
