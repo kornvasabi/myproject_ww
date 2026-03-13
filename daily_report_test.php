@@ -27,23 +27,6 @@ require_once $root_path . '/includes/auth.php'; // ถ้ามี
                             <h6 class="m-0 font-weight-bold text-primary">กำหนดเงื่อนไขรายงาน</h6>
                         </div>
                         <div class="card-body">
-                            <!-- form action="daily_report_pdf.php" method="GET" target="_blank">
-                                <div class="form-row align-items-end">
-                                    <div class="col-md-3 mb-3">
-                                        <label>ตั้งแต่วันที่</label>
-                                        <input type="text" name="start_date" class="form-control date-picker" value="<?php echo date('Y-m-d'); ?>" required>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label>ถึงวันที่</label>
-                                        <input type="text" name="end_date" class="form-control date-picker" value="<?php echo date('Y-m-d'); ?>" required>
-                                    </div>
-                                    <div class="col-md-2 mb-3">
-                                        <button type="submit" class="btn btn-danger btn-block">
-                                            <i class="fas fa-print"></i> พิมพ์ PDF
-                                        </button>
-                                    </div>
-                                </div>
-                            </form -->
                             <form id="reportForm">
                                 <div class="form-row align-items-end">
                                     <div class="col-md-3 mb-3">
@@ -54,10 +37,16 @@ require_once $root_path . '/includes/auth.php'; // ถ้ามี
                                         <label>ถึงวันที่</label>
                                         <input type="text" name="end_date" class="form-control date-picker" value="<?php echo date('Y-m-d'); ?>" required>
                                     </div>
-                                    <button type="submit" class="btn btn-danger" id="btn-print">
-                                        <span id="loading-icon" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
-                                        <span id="btn-text"><i class="fas fa-print"></i> พิมพ์ PDF (Blob)</span>
-                                    </button>
+                                    <div class="col-md-2 mb-3">
+                                        <button type="submit" class="btn btn-danger" id="btn-print">
+                                            <span id="loading-icon" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+                                            <span id="btn-text"><i class="fas fa-print"></i> พิมพ์ PDF (Blob)</span>
+                                        </button>
+                                        <button type="button" class="btn btn-success ml-2" id="btn-excel">
+                                            <span id="loading-excel" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+                                            <span id="text-excel"><i class="fas fa-file-excel"></i> Excel</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -126,6 +115,53 @@ require_once $root_path . '/includes/auth.php'; // ถ้ามี
 
                 // --- [แก้ตรงนี้] สั่งปิด Global Loader แม้จะ Error ---
                 if(globalLoader) globalLoader.classList.add('fade-out');
+            });
+        });
+
+        document.getElementById('btn-excel').addEventListener('click', function() {
+            let btn = document.getElementById('btn-excel');
+            let icon = document.getElementById('loading-excel');
+            let text = document.getElementById('text-excel');
+            
+            // 1. แสดง Loading
+            btn.disabled = true;
+            icon.style.display = 'inline-block';
+            text.textContent = ' กำลังสร้าง Excel...';
+
+            // 2. ดึงค่าจากฟอร์ม
+            const form = document.getElementById('reportForm');
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData).toString();
+
+            // 3. ยิงไปที่ไฟล์ PHP สร้าง Excel
+            fetch('daily_report_excel.php?' + params)
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.blob(); 
+            })
+            .then(blob => {
+                // --- เทคนิคดาวน์โหลดไฟล์จาก Blob แบบไม่ต้องเปิดแท็บใหม่ ---
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                // ตั้งชื่อไฟล์ที่จะเซฟ
+                // a.download = 'Daily_Report_' + formData.get('start_date') + '.xls'; 
+                a.download = 'Daily_Report_' + formData.get('start_date') + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                // 4. คืนค่าปุ่ม
+                btn.disabled = false;
+                icon.style.display = 'none';
+                text.innerHTML = '<i class="fas fa-file-excel"></i> Excel';
+            })
+            .catch(error => {
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+                btn.disabled = false;
+                icon.style.display = 'none';
+                text.innerHTML = '<i class="fas fa-file-excel"></i> Excel';
             });
         });
     </script>

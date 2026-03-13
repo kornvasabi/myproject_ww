@@ -39,6 +39,7 @@ $result = $conn->query($sql);
     <link href="/myproject_ww/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="/myproject_ww/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
@@ -210,9 +211,70 @@ $result = $conn->query($sql);
     <script src="/myproject_ww/vendor/datatables/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/tarathep/pdfmake-support-th@master/build/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
     <script>
         $(document).ready(function() {
-            $('#dataTable').DataTable({ "order": [[ 0, "desc" ]] });
+            // --- [เพิ่มส่วนนี้] ตั้งค่าฟอนต์ THSarabunNew ให้ pdfMake ---
+            pdfMake.fonts = {
+                THSarabunNew: {
+                    normal: 'THSarabunNew.ttf',
+                    bold: 'THSarabunNew-Bold.ttf',
+                    italics: 'THSarabunNew-Italic.ttf',
+                    bolditalics: 'THSarabunNew-BoldItalic.ttf'
+                },
+                Roboto: {
+                    normal: 'Roboto-Regular.ttf',
+                    bold: 'Roboto-Medium.ttf',
+                    italics: 'Roboto-Italic.ttf',
+                    bolditalics: 'Roboto-MediumItalic.ttf'
+                }
+            };
+            $('#dataTable').DataTable({ 
+                "order": [[ 0, "desc" ]],
+                // จัดวางปุ่มให้อยู่ตรงกลาง (B = Buttons)
+                "dom": "<'row'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'B><'col-sm-12 col-md-4'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "buttons": [
+                    {
+                        extend: 'excelHtml5',
+                        text: '<i class="fas fa-file-excel"></i> Excel',
+                        className: 'btn btn-success btn-sm shadow-sm mr-2', // เพิ่ม mr-2 ให้มีช่องว่างระหว่างปุ่ม
+                        title: 'Knowledge_Base_Report',
+                        exportOptions: { columns: [ 0, 1, 2, 3, 5 ] }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: '<i class="fas fa-file-pdf"></i> PDF',
+                        className: 'btn btn-danger btn-sm shadow-sm mr-2',
+                        title: 'Knowledge_Base_Report',
+                        pageSize: 'A4', // กำหนดขนาดกระดาษ
+                        exportOptions: { columns: [ 0, 1, 2, 3, 5 ] },
+                        customize: function (doc) {
+                            doc.defaultStyle = {
+                                font: 'THSarabunNew',
+                                fontSize: 16 // ปรับขนาดตัวอักษรเนื้อหา
+                            };
+                            doc.styles.tableHeader.fontSize = 18; // ปรับขนาดตัวอักษรหัวตาราง
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print"></i> พิมพ์ / Save PDF',
+                        className: 'btn btn-info btn-sm shadow-sm',
+                        title: '<h3 class="text-center">รายงาน Knowledge Base</h3>', // หัวกระดาษตอนปริ้น
+                        exportOptions: { columns: [ 0, 1, 2, 3, 5 ] }
+                    }
+                ]
+            });
             $(".custom-file-input").on("change", function() {
                 var fileName = $(this).val().split("\\").pop();
                 $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
